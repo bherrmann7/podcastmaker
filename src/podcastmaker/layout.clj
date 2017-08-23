@@ -17,7 +17,9 @@
     body {
         min-height: 2000px;
         padding-top: 70px;
+
     }
+    .alert-auto {display:inline-block;}
     </style>
   </head>
   <body>
@@ -30,13 +32,16 @@
             <span class='icon-bar'></span>
             <span class='icon-bar'></span>
           </button>
-          <a class='navbar-brand' href='#'>Podcast Maker</a>
+          <a class='navbar-brand' href='/'>Podcast Maker</a>
         </div>
         <div id='navbar' class='navbar-collapse collapse'>
           <ul class='nav navbar-nav'>
             <li " (is-active "Home") "><a href='" base "/'>Home</a></li>
             <li " (is-active "About") "><a href='" base "/about'>About</a></li>
           </ul>
+         <ul class='nav navbar-nav navbar-right'>
+              <li><a href='/logout'>Logout</a></li>
+            </ul>
         </div>
       </div>
     </nav>
