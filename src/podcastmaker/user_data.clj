@@ -1,13 +1,11 @@
 
 (ns podcastmaker.user-data
   (:require [clojure.java.io :as io]
-            [ring.util.response :as ring-resp]
-            ))
+            [ring.util.response :as ring-resp]))
 
+(defn read-data-key [] (slurp (str (System/getProperty "user.home") "/pm-data/pm-key")))
 
-(defn read-data-key [] (slurp (str (System/getProperty "user.home") "/pm-data/pm-key" )))
-
-(defn data-dir [id] (str (System/getProperty "user.home") "/pm-data/" id ))
+(defn data-dir [id] (str (System/getProperty "user.home") "/pm-data/" id))
 (defn data-dir-file [id] (io/file (data-dir id)))
 
 (defn id [request]
@@ -29,8 +27,7 @@
   (let [s (assoc resp :session (dissoc (:session request) :flash))]
     s))
 
-
 (defn get-podcast-files [id]
-  (filter #(not (.startsWith (.getName %) "." ))
+  (filter #(not (.startsWith (.getName %) "."))
           (sort-by #(.lastModified %) > (.listFiles (data-dir-file id)))))
 

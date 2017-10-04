@@ -36,11 +36,10 @@
         password (get-in request  [:form-params :password])]
     (if (is-login-correct email password)
       (login-as request email)
-      (ud/flash-and-redirect-to-login request "email or password is incorrect")
-            )))
+      (ud/flash-and-redirect-to-login request "email or password is incorrect"))))
 
 (defn logout  [request]
-  (assoc (ring-resp/redirect "/login") :session nil ))
+  (assoc (ring-resp/redirect "/login") :session nil))
 
 (defn register-page  [request]
   (ud/flash-scrub request
@@ -54,39 +53,27 @@
 
                                [:div.row
                                 [:div.col-md-4
-                                 [:h2 "Register New Account"]
-                                 ]
-                                ]
-                               [:br ]
-                               [:form { :method "POST" :action "/register" }
+                                 [:h2 "Register New Account"]]]
+                               [:br]
+                               [:form {:method "POST" :action "/register"}
                                 [:div.row
                                  [:div.col-md-3
 
-                                  [
-                                   :div.form-group
+                                  [:div.form-group
                                    [:label {:for "login-email"} "Email Address"]
-                                   [:input.form-control {:id        "login-email" :name "email" :placeholder "user@example.com"
-                                                         }]
-                                   ]
-                                  ]
-                                 ]
+                                   [:input.form-control {:id        "login-email" :name "email" :placeholder "user@example.com"}]]]]
                                 [:div.row
                                  [:div.col-md-3
-                                  [
-                                   :div.form-group
+                                  [:div.form-group
                                    [:label {:for "password"} "Password"]
-                                   [:input.form-control {:type      "password" :name "password" :placeholder "Password"
-                                                         }]
+                                   [:input.form-control {:type      "password" :name "password" :placeholder "Password"}]
                                    [:br]
                                    [:button.btn.btn-default {:type     "submit"}
-                                    "Register"]]
-                                  ]
-                                 ]]])))))
+                                    "Register"]]]]]])))))
 
-(defn validate-email [email] 
+(defn validate-email [email]
   ;; https://stackoverflow.com/questions/742451/what-is-the-simplest-regular-expression-to-validate-emails-to-not-accept-them-bl
   (re-matches #"(?!.*\.\.)(^[^\.][^@\s]+@[^@\s]+\.[^@\s\.]+$)" email))
-
 
 (defn md5 [s]
   (let [algorithm (MessageDigest/getInstance "MD5")
@@ -99,18 +86,16 @@
 
 (defn create-account [email password]
   (let [data-dir-file (ud/data-dir-file email)
-        hashed-password (hash-account email password)
-        ]
+        hashed-password (hash-account email password)]
     (.mkdirs data-dir-file)
-    (spit (io/file data-dir-file ".pmpass") hashed-password ) 
-    ))
+    (spit (io/file data-dir-file ".pmpass") hashed-password)))
 
 (defn is-login-correct [email password]
   (let [data-dir-file (ud/data-dir-file email)]
-        (if (not (.exists data-dir-file))
-          false
-          (= (hash-account email password)
-                 (slurp (io/file data-dir-file ".pmpass"))))))
+    (if (not (.exists data-dir-file))
+      false
+      (= (hash-account email password)
+         (slurp (io/file data-dir-file ".pmpass"))))))
 
 (defn is-existing-account [email]
   (.exists (ud/data-dir-file email)))
@@ -119,8 +104,8 @@
   (let [email (get-in request [:form-params :email])
         password (get-in request  [:form-params :password])]
     (cond
-      (not (validate-email email)) (ud/flash-and-redirect request "/register" "Invalid Email Address" )
-      (empty? password) (ud/flash-and-redirect request "/register" "Password is required" )
+      (not (validate-email email)) (ud/flash-and-redirect request "/register" "Invalid Email Address")
+      (empty? password) (ud/flash-and-redirect request "/register" "Password is required")
       (is-existing-account email)  (ud/flash-and-redirect request "/register" "Account already exists")
       :else (do
               (create-account email password)
@@ -133,13 +118,12 @@
 (defn forgot-page  [request]
   (clojure.pprint/pprint request)
   (ring-resp/response
-   (h/layout "Home" (html [:div "Forget with " (pr-str (:form-params request)) ]))))
+   (h/layout "Home" (html [:div "Forget with " (pr-str (:form-params request))]))))
 
 (defn forgot-attempt  [request]
   (clojure.pprint/pprint request)
   (ring-resp/response
-   (h/layout "Home" (html [:div "Forget with " (pr-str (:form-params request)) ]))))
-
+   (h/layout "Home" (html [:div "Forget with " (pr-str (:form-params request))]))))
 
 (defn login-page  [request]
   (ud/flash-scrub request
@@ -154,31 +138,25 @@
                                 [:div.col-md-3
                                  [:h2 "Login"]
 
-                                 [:form { :method "POST" :action "/login" }
-                                  [
-                                   :div.form-group
+                                 [:form {:method "POST" :action "/login"}
+                                  [:div.form-group
                                    [:label {:for "login-email"} "Email Address"]
-                                   [:input.form-control {:id        "login-email" :name "email" :placeholder "user@example.com"
-                                                         }]
+                                   [:input.form-control {:id        "login-email" :name "email" :placeholder "user@example.com"}]
 
-                                   [
-                                    :div.form-group
+                                   [:div.form-group
                                     [:label {:for "password"} "Password"]
-                                    [:input.form-control {:type      "password" :name "password" :placeholder "Password"
-                                                          }]
+                                    [:input.form-control {:type      "password" :name "password" :placeholder "Password"}]
                                     [:br]
                                     [:button.btn.btn-default {:type     "submit"}
-                                     "Login"]]
-                                   ]
-                                  ]]
+                                     "Login"]]]]]
 
                                 [:div.col-md-2]
-                                
+
                                 [:div.col-md-3
                                  [:h2 "Guest"]
 
-                                 [:form { :method "POST" :action "/guest" }
-                                  [:input {:type "hidden" :name "username" :value "guest" }]
+                                 [:form {:method "POST" :action "/guest"}
+                                  [:input {:type "hidden" :name "username" :value "guest"}]
                                   [:div "The guest account is frequently reset."]
                                   [:br]
 
@@ -186,11 +164,8 @@
 
                                   [:br]
                                   [:br]
-                                  [:a { :href "/forgot"} "Forgot Password?" ]
+                                  [:a {:href "/forgot"} "Forgot Password?"]
                                   [:br]
                                   [:br]
-                                  [:a { :href "/register"} "Register New User" ]
-
-                                  ]]]])))))
-
+                                  [:a {:href "/register"} "Register New User"]]]]])))))
 

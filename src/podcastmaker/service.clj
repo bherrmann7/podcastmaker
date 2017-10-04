@@ -16,7 +16,6 @@
 
 (use 'hiccup.core)
 
-
 (defn about-page
   [request]
   (ring-resp/response (h/layout "About" (str "Podcast Maker.   Running Clojure "
@@ -28,7 +27,7 @@
 (defn scrub-name [x]
   (-> x
       (clojure.string/replace #"[^a-zA-Z0-9_ ]" "")
-      (clojure.string/replace #"mp3$" ".mp3" )))
+      (clojure.string/replace #"mp3$" ".mp3")))
 
 (defn download-url [id url]
   (println "=-=-=-=-=-=-=-=-=-=-=-=  DOWNOADING =-=-=-=-=-=-=-=-=-=-=-=")
@@ -51,38 +50,35 @@
     (io/copy tempfile destfile)))
 
 (defn save-files [id files]
-  (doall (map #(save-file id %) files))
-  )
+  (doall (map #(save-file id %) files)))
 
 (defn add-page [request]
   (println "#################################  CALLED add-page params:" (:params request))
   (let [url (get (:params request) "url")
         file (get (:params request) "file")
-        id  (get-in request [:session :id])
-        ]
+        mp3url (get (:params request) "mp3url")
+        id  (get-in request [:session :id])]
     (if-not (empty? url)
       (do
-        (future (println (str "&&&&&&&&&&&&&&&&&& STARTING FUTURE: " url) )
+        (future (println (str "&&&&&&&&&&&&&&&&&& STARTING FUTURE: " url))
                 (download-url id url)
-                (println "FuTURE DONE") )
+                (println "FuTURE DONE"))
         (ud/flash-and-redirect-to-home request "The audio is being downloaded.  It should be availble in a minute or two.  Reload to see it added."))
       (do
         (if (vector? file)
           (save-files id file))
         (if (and (not (empty? file)) (not (vector? file)) (not (= 0 (:size file))))
           (do
-            (println "##################################### SHOULD SAVE:::  " id )
-            (save-file id file))
-          )
+            (println "##################################### SHOULD SAVE:::  " id)
+            (save-file id file)))
         (ring-resp/redirect "/")))))
-
 
 (defn delete-post [request]
   (let [fname-raw (get-in request [:path-params :file])
         fname-decode (java.net.URLDecoder/decode fname-raw "UTF-8")
         fname (.replaceAll fname-decode "/" "")
         file (io/file (ud/data-dir-file (ud/id request)) fname)]
-    (println "fname" fname )
+    (println "fname" fname)
     (.delete file)
     (ring-resp/redirect "/")))
 
@@ -104,9 +100,9 @@
 ;; apply to / and its children (/about).
 
 (def check-auth-interceptor
-  { :name ::check-auth
+  {:name ::check-auth
    :enter (fn [context]
-            (do 
+            (do
               (println "------------------- CALLED bacon.")
               (clojure.pprint/pprint (get-in context [:request :session]))
               (println "------------------- CALLED cheeze.")
@@ -124,14 +120,13 @@
 (def no-check-interceptors [(body-params/body-params) http/html-body
                             session-interceptor])
 
-(def routes #{
-              ;;;; Not logged In
+(def routes #{;;;; Not logged In
 
               ;; This initial page should be an introduction/sales - perhaps my account?
               ["/" :get (conj common-interceptors `home/home-page)]
               ["/about" :get (conj no-check-interceptors `about-page)]
 
-              ["/content/:content" :get (conj no-check-interceptors `rss/content-page)]
+              ["/content/:user/:content" :get (conj no-check-interceptors `rss/content-page)]
               ["/rss/:user" :get (conj no-check-interceptors `rss/rss-page)]
               ["/login" :get (conj no-check-interceptors `login/login-page)]
               ["/login" :post (conj no-check-interceptors `login/login-attempt)]
@@ -149,11 +144,7 @@
 
               ["/add" :post (conj [(io.pedestal.http.ring-middlewares/multipart-params) session-interceptor `add-page])]
               ["/delete/:file" :post (conj common-interceptors `delete-post)]
-              ["/sort/:direction" :get (conj common-interceptors `sort-handle)]
-
-              })
-
-
+              ["/sort/:direction" :get (conj common-interceptors `sort-handle)]})
 
 ;; Consumed by podcastmaker.server/create-server
 ;; See http/default-interceptors for additional options you can configure
@@ -172,6 +163,8 @@
               ;; "http://localhost:8080"
               ;;
               ;;::http/allowed-origins ["scheme://host:port"]
+
+              ::http/secure-headers {:content-security-policy-settings {:object-src "none"}}
 
               ;; Root for resource interceptor that is available by default.
               ::http/resource-path "/public"

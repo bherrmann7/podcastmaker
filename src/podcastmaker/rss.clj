@@ -13,9 +13,9 @@
             [podcastmaker.user-data :as ud]
             [podcastmaker.layout :as h]))
 
-(defn make-item [request file host]
+(defn make-item [request id file host]
   (let [path (.getName file)
-        full-path (str "http://" host (:context-path request) "/content/" path)]
+        full-path (str "http://" host (:context-path request) "/content/" id "/" path)]
     (str
      "        <item>
                    <title>" path "</title>
@@ -23,8 +23,8 @@
         </item>
         ")))
 
-(defn make-items [request files host]
-  (clojure.string/join "" (map #(make-item request % host) files)))
+(defn make-items [request id files host]
+  (clojure.string/join "" (map #(make-item request id % host) files)))
 
 (defn rss-page [request]
   (let [id (get-in request [:path-params :user])
@@ -39,11 +39,12 @@
                  <description>podcastmaker feed</description>
                  <link>https://github.com/bherrmann7/podcastmaker</link>
                  <title>PodcastMaker</title>
-" (make-items request files host)  "  </channel> </rss>")}))
+" (make-items request id files host)  "  </channel> </rss>")}))
 
 (defn content-page [request]
   (let [filename (get-in request [:path-params :content])
-        file (io/file (ud/data-dir-file (ud/id request)) (java.net.URLDecoder/decode filename))]
+        rssid (get-in request [:path-params :user])
+        file (io/file (ud/data-dir-file rssid) (java.net.URLDecoder/decode filename))]
     (println (str "Fetching:" file))
     (if (.exists file)
       {:status 200
