@@ -60,6 +60,7 @@
                                           [:tr [:th "Name" [:th "Size"] [:th "Controls"]]]
                                           (map #(list-file id %) (ud/get-podcast-files (ud/id request)))]]
 
+                                        [:br]
                                         [:div.panel-group {:id "accordion"}
                                          [:div.panel.panel-default
                                           [:div.panel-heading

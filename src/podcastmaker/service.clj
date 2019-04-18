@@ -82,6 +82,9 @@
     (.delete file)
     (ring-resp/redirect "/")))
 
+(defn progress-handle [request]
+  (let [dir (get-in request [:path-params :direction])
+
 (defn sort-handle [request]
   (let [dir (get-in request [:path-params :direction])
         id (ud/id request)
@@ -144,6 +147,7 @@
 
               ["/add" :post (conj [(io.pedestal.http.ring-middlewares/multipart-params) session-interceptor `add-page])]
               ["/delete/:file" :post (conj common-interceptors `delete-post)]
+              ["/progress" :get (conj common-interceptors `proress-handle)]})
               ["/sort/:direction" :get (conj common-interceptors `sort-handle)]})
 
 ;; Consumed by podcastmaker.server/create-server
