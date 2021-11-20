@@ -2,6 +2,9 @@
 
 A very simple tool for making and hosting podcasts
 
+- provides a web application which generates/hosts the RSS feeds to clients.
+- allows an authenticated user to upload new mp3 files to be placed into the feed.
+
 ## Getting Started
 
 1. Start the application: `lein run`
